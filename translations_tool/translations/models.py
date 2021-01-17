@@ -1,0 +1,52 @@
+from django.conf import settings
+from django.db import models
+from django.utils.translation import gettext_lazy as _
+from simple_history.models import HistoricalRecords
+from translated_fields import TranslatedField
+
+
+class TranslationGroup(models.Model):
+    name = TranslatedField(models.CharField(max_length=255, blank=True))
+    parent = models.ForeignKey("self", on_delete=models.SET_NULL, blank=True, null=True)
+
+    history = HistoricalRecords()
+
+    order_index = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"TranslationGroup: {self.name}"
+
+
+class Translation(models.Model):
+    NEW = "NEW"
+    TODO = "TODO"
+    READY_TO_REVIEW = "READY_TO_REVIEW"
+    NEEDS_WORK = "NEEDS_WORK"
+    ACCEPTED = "ACCEPTED"
+
+    STATUS = [
+        (NEW, _("New")),
+        (TODO, _("To do")),
+        (READY_TO_REVIEW, _("Ready to review")),
+        (NEEDS_WORK, _("Needs work")),
+        (ACCEPTED, _("Accepted")),
+    ]
+
+    key = models.TextField(max_length=2000, db_index=True)
+    parent = models.ForeignKey(TranslationGroup, on_delete=models.SET_NULL, blank=True, null=True)
+
+    value = TranslatedField(models.TextField(max_length=2000, blank=True))
+    state = TranslatedField(models.CharField(max_length=255, choices=STATUS, default=NEW))
+
+    history = HistoricalRecords()
+
+    order_index = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"Translation: {self.key}"
+
+    def get_full_value(self):
+        return {lang_code: getattr(self, f"value_{lang_code}") for lang_code, lang_name in settings.LANGUAGES}
+
+    def get_full_state(self):
+        return {lang_code: getattr(self, f"state_{lang_code}") for lang_code, lang_name in settings.LANGUAGES}
