@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="migrate" type="Python.DjangoServer" factoryName="Django server" singleton="true">
+  <configuration default="false" name="showmigrations" type="Python.DjangoServer" factoryName="Django server">
     <module name="translations_tool" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
@@ -22,7 +22,7 @@
     <option name="runTestServer" value="false" />
     <option name="runNoReload" value="false" />
     <option name="useCustomRunCommand" value="true" />
-    <option name="customRunCommand" value="migrate" />
+    <option name="customRunCommand" value="showmigrations" />
     <method v="2" />
   </configuration>
 </component>
