@@ -1,0 +1,65 @@
+{% extends "basicbase.html" %}
+{% load i18n %}
+
+{% block content %}
+    <section class="login">
+        <div class="login_wrapper">
+            <h2>{% trans "Login" %}</h2>
+
+            {% if form.errors %}
+                <div class="errors">
+{#                    {% for field in form %}#}
+{#                        {% for error in field.errors %}#}
+{#                            <p class="error">{{ error }}</p>#}
+{#                        {% endfor %}#}
+{#                    {% endfor %}#}
+                    {% for error in form.non_field_errors %}
+                        <p class="error">{{ error|escape }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+
+            {% if next %}
+                {% if user.is_authenticated %}
+                    <p>Your account doesn't have access to this page. To proceed,
+                        please login with an account that has access.</p>
+                {% else %}
+                    <p>Please login to see this page.</p>
+                {% endif %}
+            {% endif %}
+
+            <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+
+                <div class="input_wrapper">
+                    {{ form.username.label_tag }}
+                    {{ form.username }}
+                    {% for error in form.username.errors %}
+                        <p class="error">{{ error|escape }}</p>
+                    {% endfor %}
+                </div>
+
+                <div class="input_wrapper">
+                    {{ form.password.label_tag }}
+                    {{ form.password }}
+                    {% for error in form.password.errors %}
+                        <p class="error">{{ error|escape }}</p>
+                    {% endfor %}
+                </div>
+
+
+                <div class="input_wrapper">
+                    <input class="login_submit" type="submit" value="{% trans 'Login' as text %}{{ text|upper }}">
+                </div>
+                <input type="hidden" name="next" value="{{ next }}">
+            </form>
+
+            {# Assumes you setup the password_reset view in your URLconf #}
+            {#<p><a href="{% url 'password_reset' %}">Lost password?</a></p>#}
+
+        </div>
+    </section>
+
+
+{% endblock %}

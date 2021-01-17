@@ -1,0 +1,30 @@
+{% extends "styledbased.html" %}
+{% load i18n %}
+
+{% block content %}
+    <section class="account-panel">
+
+        <div class="account-panel-wrapper">
+            <h1 class="account-panel-header">{% trans "My Profile" %}</h1>
+            <h2 class="account-panel-header">{% trans "Data" %}</h2>
+            <div class="account-panel-info">
+                <span class="account-panel-key">Username</span>
+                <span class="account-panel-value">{{ user.username }}</span>
+            </div>
+            <div class="account-panel-info">
+                <span class="account-panel-key">Email</span>
+                <span class="account-panel-value">{% if user.email %}{{ user.email }}{% else %}-{% endif %}</span>
+            </div>
+            <div class="account-panel-info">
+                <span class="account-panel-key">Role</span>
+                <span class="account-panel-value">{{ user.get_role }}</span>
+            </div>
+            <h2 class="account-panel-header">{% trans "Actions" %}</h2>
+            <div class="account-panel-links-wrapper">
+                <a href="{% url 'users:change_password' %}" class="account-panel-link">{% trans 'Change password' %}</a>
+            </div>
+        </div>
+
+    </section>
+
+{% endblock content %}

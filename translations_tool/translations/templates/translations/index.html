@@ -1,0 +1,153 @@
+{% extends "styledbased.html" %}
+{% load i18n static %}
+
+{% block content %}
+    <section class="home">
+        <section class="options">
+            <div class="options">
+                {% if request.user.is_admin %}
+                <a id="save-tree" href="#" class="circle red">
+                    <img src="{% static 'images/save.png' %}">
+                </a>
+                {% endif %}
+                <a href="{% url 'translations:index' %}" class="circle green">
+                    <img src="{% static 'images/refresh-icon.png' %}">
+                </a>
+            </div>
+        </section>
+        <section class="translation-groups">
+
+            <fieldset {% if languages|length == 1 %}style="display: none;"{% endif %}>
+                <select name="trans-group-lang" id="translation-groups-language">
+                    {% for lang_code, lang_name in languages %}
+                        <option value="{{ lang_code }}" data-class="flag-{{ lang_code }}"{% if lang_code == lang %}
+                                selected="selected"{% endif %}>{{ lang_name }}</option>
+                    {% endfor %}
+                </select>
+            </fieldset>
+            <div class="tree" id="grouptree" data-url="{% url 'translations:tree' %}?lang={{ lang }}"></div>
+        </section>
+        <section class="translation">
+            <div class="translation-wrapper">
+
+            </div>
+        </section>
+    </section>
+
+
+{% endblock content %}
+
+{% block js %}
+    <script>
+        $(function () {
+            var $tree = $('#grouptree');
+
+            $tree.tree({
+                dragAndDrop: true,
+                onCanMoveTo: function (moved_node, target_node, position) {
+                    {#console.log('moved_node', moved_node);#}
+                    {#console.log('target_node', target_node);#}
+                    {#console.log('position', position);#}
+                    if (target_node.type === 'translation' && position === 'inside') {
+                        return false;
+                    }
+
+                    if (target_node.is_menu) {
+                        // Example: can move inside menu, not before or after
+                        return (position == 'inside');
+                    } else {
+                        return true;
+                    }
+                },
+                onCreateLi: function (node, $li) {
+                    console.log('node', node);
+                    console.log('$li', $li);
+                    $li.attr('node-id', node.id);
+                    $li.attr('node-type', node.type);
+                    if (node.type === 'translation') {
+                        $li.attr('node-status', node.status);
+                    }
+
+                }
+            });
+
+
+            $tree.on('click', 'li', function (e) {
+                // Get the id from the 'node-id' data property
+
+
+                var node_id = $(this).attr('node-id');
+                var node_type = $(this).attr('node-type');
+                if (node_type === 'translation') {
+                    $.get("{% url 'translations:translation_details' %}?node_id=" + node_id, function (data) {
+                        console.log('data', data);
+                        $("div.translation-wrapper").html(data);
+                    });
+                }
+                console.log('node_id', node_id);
+            });
+
+
+            $("#save-tree").click(function (event) {
+                event.preventDefault();
+                var $success = $('<div class="alert-box success">{% trans "Successfully saved tree." %}</div>');
+                $("body").prepend($success);
+                $success.fadeIn(300).delay(1500).fadeOut(400);
+            });
+        });
+
+
+
+
+        $(function () {
+            $.widget("custom.iconselectmenu", $.ui.selectmenu, {
+                _renderItem: function (ul, item) {
+                    var li = $("<li>"),
+                        wrapper = $("<div>", {text: item.label});
+
+                    if (item.disabled) {
+                        li.addClass("ui-state-disabled");
+                    }
+
+                    $("<span>", {
+                        style: item.element.attr("data-style"),
+                        "class": "ui-icon " + item.element.attr("data-class")
+                    })
+                        .appendTo(wrapper);
+
+                    return li.append(wrapper).appendTo(ul);
+                }
+            });
+
+            $("#translation-groups-language")
+                .iconselectmenu({
+                    change: function (event, data) {
+                        console.log('event', event);
+                        console.log('data', data);
+                        console.log('data.item.value', data.item.value);
+
+                        window.location.href = "?lang=" + data.item.value;
+                    }
+                })
+                .iconselectmenu("menuWidget")
+                .addClass("ui-menu-icons");
+
+            $("#translation-write-language")
+                .iconselectmenu()
+                .iconselectmenu("menuWidget")
+                .addClass("ui-menu-icons");
+
+            $("#translation-read-language")
+                .iconselectmenu()
+                .iconselectmenu("menuWidget")
+                .addClass("ui-menu-icons");
+
+
+            $("input[type=radio]").checkboxradio({
+                icon: false
+            });
+
+
+        });
+    </script>
+{% endblock js %}
