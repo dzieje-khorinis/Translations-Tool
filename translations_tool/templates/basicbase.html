@@ -1,0 +1,44 @@
+{% load static i18n %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Transtool</title>
+
+
+    {% block head %}
+    {% endblock head %}
+    <link rel="stylesheet" type="text/css" href="{% static "css/main.css" %}">
+</head>
+<body>
+
+{#{% if messages %}#}
+{#<ul class="messages">#}
+{#    {% for message in messages %}#}
+{#    <li class=""{% endif %}>{{ message }}</li>#}
+{#    {% endfor %}#}
+{#</ul>#}
+{#    {% else %}#}
+{#    <p>No messages</p>#}
+{#{% endif %}#}
+{% for message in messages %}
+    <div class="alert-box{% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</div>
+{% endfor %}
+
+<header>
+    {% block header %}
+    {% endblock header %}
+</header>
+
+{% block content %}
+{% endblock content %}
+
+<script>
+    $(function () {
+        $("div.alert-box").fadeIn(300).delay(1500).fadeOut(400);
+    });
+</script>
+
+{% block js %}
+{% endblock js %}
+</body>
+</html>

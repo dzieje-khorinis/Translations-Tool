@@ -33,11 +33,12 @@
     <option name="TEMPLATE_FOLDERS">
       <list>
         <option value="$MODULE_DIR$/translations_tool/templates" />
+        <option value="$MODULE_DIR$/translations_tool/translations/templates" />
+        <option value="$MODULE_DIR$/translations_tool/users/templates" />
       </list>
     </option>
   </component>
   <component name="TestRunnerService">
-    <option name="projectConfiguration" value="pytest" />
     <option name="PROJECT_TEST_RUNNER" value="pytest" />
   </component>
 </module>
