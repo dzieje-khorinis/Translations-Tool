@@ -9,11 +9,6 @@ from translations_tool.translations.models import Translation
 
 
 class User(AbstractUser):
-    """Default user for Translations Tool."""
-
-    #: First and last name do not cover name patterns around the globe
-    name = CharField(_("Name of User"), blank=True, max_length=255)
-
     chief = ForeignKey("self", on_delete=SET_NULL, blank=True, null=True, related_name="subordinates")
     ADMIN = "ADMIN"
     COORDINATOR = "COORDINATOR"
