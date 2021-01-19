@@ -26,7 +26,7 @@ class User(AbstractUser):
 
     def get_languages(self):
         languages = dict(settings.LANGUAGES)
-        if not self.role:
+        if not self.role and not self.is_superuser:
             return []
 
         if self.role in (User.COORDINATOR, User.TRANSLATOR) and not self.is_superuser:
@@ -42,7 +42,7 @@ class User(AbstractUser):
     def get_state_actions(self):
         actions = []
 
-        if not self.role:
+        if not self.role and not self.is_superuser:
             return actions
 
         actions.extend(

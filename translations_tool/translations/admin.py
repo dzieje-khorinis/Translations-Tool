@@ -46,10 +46,6 @@ class ColoredStateMeta(MediaDefiningClass):
     }
 
     def __new__(cls, name, bases, dct):
-        print("name", name)
-        print("bases", bases)
-        print("dct", dct)
-
         list_display = []
         for attr in dct["list_display"]:
             if attr.startswith("state"):
