@@ -39,10 +39,10 @@ services:
       - django
     volumes:
       - production_traefik:/etc/traefik/acme:z
+      - ./compose/production/traefik/traefik-https-example.yml:/etc/traefik/traefik.yml
     ports:
-      - "0.0.0.0:80:80"
-      - "0.0.0.0:443:443"
-      - "0.0.0.0:5555:5555"
+      - "80:80"
+      - "443:443"
 
   redis:
     image: redis:5.0
