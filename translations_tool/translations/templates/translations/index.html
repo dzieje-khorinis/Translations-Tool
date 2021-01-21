@@ -45,21 +45,28 @@
             $tree.tree({
                 dragAndDrop: true,
                 onCanMoveTo: function (moved_node, target_node, position) {
+                    console.log('onCanMoveTo');
                     {#console.log('moved_node', moved_node);#}
                     {#console.log('target_node', target_node);#}
                     {#console.log('position', position);#}
+
+                    if (target_node.type === 'group' && target_node.is_open !== true) {
+                      return false;
+                    }
+
                     if (target_node.type === 'translation' && position === 'inside') {
                         return false;
                     }
 
                     if (target_node.is_menu) {
                         // Example: can move inside menu, not before or after
-                        return (position == 'inside');
+                        return (position === 'inside');
                     } else {
                         return true;
                     }
                 },
                 onCreateLi: function (node, $li) {
+                    console.log('onCreateLi');
                     console.log('node', node);
                     console.log('$li', $li);
                     $li.attr('node-id', node.id);
