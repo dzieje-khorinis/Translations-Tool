@@ -1,4 +1,4 @@
-Translations Tool
+Translations Tool 
 =================
 
 Online tool that aims to provide easy way to make translations for big projects.
