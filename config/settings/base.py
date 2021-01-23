@@ -142,6 +142,7 @@ MIDDLEWARE = [
     "django.middleware.common.BrokenLinkEmailsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
+    "ratelimit.middleware.RatelimitMiddleware",
 ]
 
 # STATIC
@@ -298,4 +299,8 @@ STATICFILES_FINDERS += ["compressor.finders.CompressorFinder"]
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+# https://django-simple-history.readthedocs.io/en/latest/admin.html#disabling-the-option-to-revert-an-object
 SIMPLE_HISTORY_REVERT_DISABLED = True
+
+# https://django-ratelimit.readthedocs.io/en/stable/settings.html?highlight=RATELIMIT_VIEW#ratelimit-view
+RATELIMIT_VIEW = "translations_tool.translations.views.ratelimited_error"

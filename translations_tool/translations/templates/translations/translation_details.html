@@ -1,148 +1,170 @@
 {% load i18n %}
-<h3 class="translation-header">{{ translation.key }} <span
-        status="{{ state }}">{{ state_display }}</span></h3>
+<h3 class="translation-header">{{ translation.key }} <span id="translation-status"
+                                                           status="{{ state }}">{{ state_display }}</span></h3>
 <br>
 <fieldset>
-    <label class="translation-header" for="translation-read-language">{% trans "Show translation" %}:</label>
-    <select name="trans-lang" id="translation-read-language">
-        {% for lang_code, lang_name in read_languages %}
-            <option value="{{ lang_code }}" data-class="flag-{{ lang_code }}">{{ lang_name }}</option>
-        {% endfor %}
-    </select>
+  <label class="translation-header" for="translation-read-language">{% trans "Show translation" %}:</label>
+  <select name="trans-lang" id="translation-read-language">
+    {% for lang_code, lang_name in read_languages %}
+      <option value="{{ lang_code }}" data-class="flag-{{ lang_code }}">{{ lang_name }}</option>
+    {% endfor %}
+  </select>
 </fieldset>
 
 <div class="translation-content">
-    <textarea id='show-translation' class="translation-content" disabled></textarea>
+  <textarea id='show-translation' class="translation-content" disabled></textarea>
 </div>
 
 
 {% if write_languages|length == 1 %}
-    <h3 class="translation-header">{% trans "Enter translation" %} ({{ write_languages.0.1 }}):</h3>
+  <h3 class="translation-header">{% trans "Enter translation" %} ({{ write_languages.0.1 }}):</h3>
 
 {% else %}
 
-    <fieldset>
-        <label class="translation-header" for="translation-write-language">{% trans "Enter translation" %}:</label>
-        <select name="trans-lang" id="translation-write-language">
-            {% for lang_code, lang_name in write_languages %}
-                <option value="{{ lang_code }}" data-class="flag-{{ lang_code }}">{{ lang_name }}</option>
-            {% endfor %}
-        </select>
-    </fieldset>
+  <fieldset>
+    <label class="translation-header" for="translation-write-language">{% trans "Enter translation" %}:</label>
+    <select name="trans-lang" id="translation-write-language">
+      {% for lang_code, lang_name in write_languages %}
+        <option value="{{ lang_code }}" data-class="flag-{{ lang_code }}">{{ lang_name }}</option>
+      {% endfor %}
+    </select>
+  </fieldset>
 
 {% endif %}
 
 
 <div class="translation-content">
-    <textarea id='enter-translation' class="translation-content"></textarea>
+  <textarea id='enter-translation' class="translation-content"></textarea>
 </div>
 
 <h3 class="translation-header">{% trans "Translation state" %}:</h3>
 <fieldset>
-    {% for status_code, status_name in translation.STATUS %}
-        {% if status_code in user.get_state_actions %}
+  {% for status_code, status_name in translation.STATUS %}
+    {% if status_code in user.get_state_actions %}
 
-            <label for="radio-{{ status_code }}">{{ status_name }}</label>
-            <input type="radio" name="radio-status" id="radio-{{ status_code }}"
-                   {% if status_code == translation.state %}checked{% endif %}>
-        {% endif %}
+      <label for="radio-{{ status_code }}">{{ status_name }}</label>
+      <input type="radio" name="radio-status" id="radio-{{ status_code }}"
+             {% if status_code == translation.state %}checked{% endif %}>
+    {% endif %}
 
 
-    {% endfor %}
+  {% endfor %}
 </fieldset>
 
 <input type="submit" class="translation-save" value="{% trans 'Save' %}">
 
 <script>
-    var full_value = {{ full_value }};
-    var full_state = {{ full_state }};
-    var read_language = localStorage.getItem('read-language');
+  var full_value = {{ full_value }};
+  var full_state = {{ full_state }};
+  var read_language = localStorage.getItem('read-language');
 
-    {% if write_languages|length == 1 %}
-        var write_language = '{{ write_languages.0.0 }}';
-    {% else %}
-        var write_language = localStorage.getItem('write-language');
-        if (write_language) {
-            $("select#translation-write-language").val(write_language);
-        }
-        write_language = $("select#translation-write-language").val();
+  {% if write_languages|length == 1 %}
+    var write_language = '{{ write_languages.0.0 }}';
+  {% else %}
+    var write_language = localStorage.getItem('write-language');
+    if (write_language) {
+      $("select#translation-write-language").val(write_language);
+    }
+    write_language = $("select#translation-write-language").val();
 
-    {% endif %}
+  {% endif %}
 
-    console.log('write_language', write_language);
+  console.log('write_language', write_language);
 
-    if (read_language) {
-        $("select#translation-read-language").val(read_language);
+  if (read_language) {
+    $("select#translation-read-language").val(read_language);
+  }
+
+  read_language = $("select#translation-read-language").val();
+
+  $("textarea#show-translation").val(full_value[read_language]);
+  $("textarea#enter-translation").val(full_value[write_language]);
+  var current_state = full_state[write_language];
+  $("label[for='radio-" + current_state + "']").click();
+
+
+  $("#translation-read-language")
+          .iconselectmenu({
+            change: function (event, data) {
+              console.log('event', event);
+              console.log('data', data);
+              console.log('data.item.value', data.item.value);
+
+              $("textarea#show-translation").val(full_value[data.item.value]);
+
+              localStorage.setItem('read-language', data.item.value);
+
+            }
+          })
+          .iconselectmenu("menuWidget")
+          .addClass("ui-menu-icons");
+
+
+  $("#translation-write-language")
+          .iconselectmenu({
+            change: function (event, data) {
+              console.log('event', event);
+              console.log('data', data);
+              console.log('data.item.value', data.item.value);
+
+              $("textarea#enter-translation").val(full_value[data.item.value]);
+              var current_state = full_state[data.item.value];
+              $("label[for='radio-" + current_state + "']").click();
+
+              localStorage.setItem('write-language', data.item.value);
+            }
+          })
+          .iconselectmenu("menuWidget")
+          .addClass("ui-menu-icons");
+
+
+  $("input[type=radio]").checkboxradio({
+    icon: false
+  });
+
+  $("input.translation-save").click(function () {
+    var $this = $(this);
+    $this.attr('disabled', true);
+    var selected_id = $("input[type=radio]:checked").attr('id');
+    var selected_label = $("label[for=" + selected_id + "]").text();
+    var request_data = {
+      value: $("textarea#enter-translation").val(),
+      state: selected_id,
+      language: $("select#translation-write-language").val() || write_language,
+      translation_id: '{{ translation.id }}'
+
+    };
+
+    function notification(data) {
+      var $alert = $('<div class="alert-box ' + data.status + '">' + data.message + '</div>');
+      $("#alerts").prepend($alert);
+      $alert.fadeIn(300).delay(1500).fadeOut(400);
+      setTimeout(function () {
+        $alert.remove();
+      }, 2000);
     }
 
-    read_language = $("select#translation-read-language").val();
+    $.post('{% url "translations:save_translation" %}', request_data, function (data) {
+      setTimeout(function () {
+        $this.removeAttr('disabled');
+      }, 3000);
+      console.log('response_data', data);
+      console.log("li[node-type='translation'][node-id='" + data.translation_id + "']");
+      $("li[node-type='translation'][node-id='" + data.translation_id + "']").attr('node-status', data.state);
+      $("#translation-status").attr('status', data.state).text(selected_label);
+      notification(data)
 
-    $("textarea#show-translation").val(full_value[read_language]);
-    $("textarea#enter-translation").val(full_value[write_language]);
-    var current_state = full_state[write_language];
-    $("label[for='radio-" + current_state + "']").click();
-
-
-    $("#translation-read-language")
-        .iconselectmenu({
-            change: function (event, data) {
-                console.log('event', event);
-                console.log('data', data);
-                console.log('data.item.value', data.item.value);
-
-                $("textarea#show-translation").val(full_value[data.item.value]);
-
-                localStorage.setItem('read-language', data.item.value);
-
-            }
-        })
-        .iconselectmenu("menuWidget")
-        .addClass("ui-menu-icons");
-
-
-    $("#translation-write-language")
-        .iconselectmenu({
-            change: function (event, data) {
-                console.log('event', event);
-                console.log('data', data);
-                console.log('data.item.value', data.item.value);
-
-                $("textarea#enter-translation").val(full_value[data.item.value]);
-                var current_state = full_state[data.item.value];
-                $("label[for='radio-" + current_state + "']").click();
-
-                localStorage.setItem('write-language', data.item.value);
-            }
-        })
-        .iconselectmenu("menuWidget")
-        .addClass("ui-menu-icons");
-
-
-    $("input[type=radio]").checkboxradio({
-        icon: false
+    }).fail(function (response) {
+      setTimeout(function () {
+        $this.removeAttr('disabled');
+      }, 3000);
+      var data = response.responseJSON;
+      console.log('FAIL');
+      console.log('response', response);
+      console.log('data', data);
+      notification(data);
     });
-
-    $("input.translation-save").click(function () {
-        var $this = $(this);
-        $this.attr('disabled', true);
-        var request_data = {
-            value: $("textarea#enter-translation").val(),
-            state: $("input[type=radio]:checked").attr('id'),
-            language: $("select#translation-write-language").val() || write_language,
-            translation_id: '{{ translation.id }}'
-
-        };
-        $.post('{% url "translations:save_translation" %}', request_data, function (response_data) {
-            $this.removeAttr('disabled');
-            console.log('response_data', response_data);
-            console.log("li[node-type='translation'][node-id='" + response_data.translation_id + "']");
-            $("li[node-type='translation'][node-id='" + response_data.translation_id + "']").attr('node-status', response_data.state);
-
-            var $success = $('<div class="alert-box success">{% trans "Successfully saved translation." %}</div>');
-            $("body").prepend($success);
-            $success.fadeIn(300).delay(1500).fadeOut(400);
-        });
-    });
+  });
 
 
 </script>

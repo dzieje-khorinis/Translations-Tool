@@ -10,7 +10,11 @@
     <link rel="stylesheet" type="text/css" href="{% static "css/main.css" %}">
 </head>
 <body>
-
+<div id="alerts">
+  {% for message in messages %}
+    <div class="alert-box{% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</div>
+  {% endfor %}
+</div>
 {#{% if messages %}#}
 {#<ul class="messages">#}
 {#    {% for message in messages %}#}
@@ -20,9 +24,7 @@
 {#    {% else %}#}
 {#    <p>No messages</p>#}
 {#{% endif %}#}
-{% for message in messages %}
-    <div class="alert-box{% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</div>
-{% endfor %}
+
 
 <header>
     {% block header %}

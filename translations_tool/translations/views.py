@@ -5,7 +5,9 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
+from ratelimit.decorators import ratelimit
 
 from .models import Translation, TranslationGroup
 
@@ -82,6 +84,16 @@ def translation_details_view(request):
     return render(request, "translations/translation_details.html", context=ctx)
 
 
+@login_required
+def translation_group_details_view(request):
+    translation_group = get_object_or_404(TranslationGroup, id=request.GET.get("node_id"))
+    ctx = {
+        "group": translation_group,
+    }
+    return render(request, "translations/translation_group_details.html", context=ctx)
+
+
+@ratelimit(key="ip", rate="10/m", block=True)
 @csrf_exempt
 @login_required
 def save_translation_view(request):
@@ -97,6 +109,8 @@ def save_translation_view(request):
             "state": state,
             "language": language,
             "translation_id": translation_id,
+            "message": _("Successfully saved translation."),
+            "status": "success",
         }
 
         translation = Translation.objects.get(id=translation_id)
@@ -105,3 +119,15 @@ def save_translation_view(request):
         translation.save()
         print(data)
     return JsonResponse(data, safe=False)
+
+
+def ratelimited_error(request, exception):
+    # or other types:
+    return JsonResponse(
+        {
+            "error": "ratelimited",
+            "message": _("Too many requests. Please wait."),
+            "status": "error",
+        },
+        status=429,
+    )
