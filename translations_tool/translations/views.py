@@ -11,6 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from ratelimit.decorators import ratelimit
 
+from ..users.models import User
 from .models import Translation, TranslationGroup
 
 
@@ -68,11 +69,17 @@ def translation_tree_view(request):
 
 @login_required
 def translation_details_view(request):
+    user = request.user
     lang = request.user.get_translation_language(lang_code=request.GET.get("lang"))
     statuses = dict(Translation.STATUS)
 
     translation = get_object_or_404(Translation, id=request.GET.get("node_id"))
     state = getattr(translation, f"state_{lang}")
+
+    actions = request.user.get_state_actions()
+    if user.role == User.TRANSLATOR and not user.is_superuser and translation.state == Translation.ACCEPTED:
+        actions = []
+
     ctx = {
         "translation": translation,
         "state": state,
@@ -82,6 +89,7 @@ def translation_details_view(request):
         "lang": lang,
         "full_value": mark_safe(json.dumps(translation.get_full_value(), indent=4, ensure_ascii=False)),
         "full_state": mark_safe(json.dumps(translation.get_full_state(), indent=4, ensure_ascii=False)),
+        "actions": actions,
     }
     return render(request, "translations/translation_details.html", context=ctx)
 
@@ -186,3 +194,18 @@ class TranslationListJson(BaseDatatableView):
         )
         groups_ids = set(subgroups.values_list("id", flat=True)) | {group.id}
         return qs.filter(parent_id__in=groups_ids)
+
+
+@login_required
+def user_list(request):
+    return render(request, "translations/user_list.html")
+
+
+@login_required
+def create_user(request):
+    pass
+
+
+@login_required
+def remove_user(request):
+    pass

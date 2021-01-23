@@ -34,24 +34,25 @@
 
 
 <div class="translation-content">
-  <textarea id='enter-translation' class="translation-content"></textarea>
+  <textarea id='enter-translation' class="translation-content" {% if not actions %}disabled{% endif %}></textarea>
 </div>
 
-<h3 class="translation-header">{% trans "Translation state" %}:</h3>
-<fieldset>
-  {% for status_code, status_name in translation.STATUS %}
-    {% if status_code in user.get_state_actions %}
+{% if actions %}
+  <h3 class="translation-header">{% trans "Translation state" %}:</h3>
+  <fieldset>
+    {% for status_code, status_name in translation.STATUS %}
+      {% if status_code in actions %}
 
-      <label for="radio-{{ status_code }}">{{ status_name }}</label>
-      <input type="radio" name="radio-status" id="radio-{{ status_code }}"
-             {% if status_code == translation.state %}checked{% endif %}>
-    {% endif %}
+        <label for="radio-{{ status_code }}">{{ status_name }}</label>
+        <input type="radio" name="radio-status" id="radio-{{ status_code }}"
+               {% if status_code == translation.state %}checked{% endif %}>
+      {% endif %}
 
 
-  {% endfor %}
-</fieldset>
-
-<input type="submit" class="translation-save" value="{% trans 'Save' %}">
+    {% endfor %}
+  </fieldset>
+  <input type="submit" class="translation-save" value="{% trans 'Save' %}">
+{% endif %}
 
 <script>
   var full_value = {{ full_value }};

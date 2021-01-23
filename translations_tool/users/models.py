@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
-from django.db.models import CharField, ForeignKey
+from django.db import models
+from django.db.models import CharField, ForeignKey, Model
 from django.db.models.deletion import SET_NULL
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -89,3 +90,12 @@ class User(AbstractUser):
 
         """
         return reverse("users:detail", kwargs={"username": self.username})
+
+
+class UserActivity(Model):
+    user = ForeignKey(User, on_delete=models.CASCADE, db_index=True)
+    translation = ForeignKey(Translation, on_delete=models.CASCADE, db_index=True)
+    at = models.DateTimeField(auto_now=True, db_index=True)
+
+    class Meta:
+        unique_together = ("user", "translation")

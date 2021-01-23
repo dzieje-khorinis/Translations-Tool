@@ -43,7 +43,7 @@
       var $tree = $('#grouptree');
 
       $tree.tree({
-        dragAndDrop: true,
+        dragAndDrop: false,  // TODO change to true when saving tree is done
         onCanMoveTo: function (moved_node, target_node, position) {
           console.log('onCanMoveTo');
           {#console.log('moved_node', moved_node);#}

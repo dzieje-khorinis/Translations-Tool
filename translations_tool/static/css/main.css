@@ -694,6 +694,9 @@ input.translation-save:hover {
   margin-right: 10px;
 }
 
+textarea.translation-content[disabled] {
+  color: #BBB;
+}
 
 /* DATATABLES STYLE */
 
