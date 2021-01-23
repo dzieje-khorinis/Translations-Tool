@@ -2,6 +2,7 @@ import json
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count, F, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils.safestring import mark_safe
@@ -86,9 +87,25 @@ def translation_details_view(request):
 
 @login_required
 def translation_group_details_view(request):
-    translation_group = get_object_or_404(TranslationGroup, id=request.GET.get("node_id"))
+    lang = request.user.get_translation_language(lang_code=request.GET.get("lang"))
+
+    group = get_object_or_404(TranslationGroup, id=request.GET.get("node_id"))
+
+    subgroups = TranslationGroup.objects.filter(
+        Q(parent=group) | Q(parent__parent=group) | Q(parent__parent__parent=group)
+    )
+    groups_ids = set(subgroups.values_list("id", flat=True)) | {group.id}
+    translations = Translation.objects.filter(parent_id__in=groups_ids)
+    print("groups_ids", groups_ids)
+    print("translations", translations)
+    print("count", translations.count())
+
+    states_counts = translations.values(state=F(f"state_{lang}")).annotate(total=Count("state")).order_by("total")
+    print("states_counts", states_counts)
+
     ctx = {
-        "group": translation_group,
+        "group": group,
+        "states_counts": states_counts,
     }
     return render(request, "translations/translation_group_details.html", context=ctx)
 
