@@ -10,9 +10,6 @@ entryPoints:
     # https
     address: ":443"
 
-  flower:
-    address: ":5555"
-
 certificatesResolvers:
   letsencrypt:
     # https://docs.traefik.io/master/https/acme/#lets-encrypt
@@ -26,8 +23,7 @@ certificatesResolvers:
 http:
   routers:
     web-router:
-      rule: "Host(`example.com`) || Host(`www.example.com`)"
-
+      rule: "Host(`app.translation-app.com`) || Host(`www.app.translation-app.com`)"
       entryPoints:
         - web
       middlewares:
@@ -36,7 +32,7 @@ http:
       service: django
 
     web-secure-router:
-      rule: "Host(`example.com`) || Host(`www.example.com`)"
+      rule: "Host(`app.translation-app.com`) || Host(`www.app.translation-app.com`)"
 
       entryPoints:
         - web-secure
@@ -48,9 +44,9 @@ http:
         certResolver: letsencrypt
 
     flower-secure-router:
-      rule: "Host(`example.com`)"
+      rule: "Host(`flower.translation-app.com`)"
       entryPoints:
-        - flower
+        - web-secure
       service: flower
       tls:
         # https://docs.traefik.io/master/routing/routers/#certresolver
