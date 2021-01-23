@@ -42,8 +42,8 @@ jobs:
 #          docker tag $DJANGO_IMAGE_NAME $IMAGE_ID:$VERSION
 #          docker push $IMAGE_ID:$VERSION
   deploy:
-    needs: push-django
-#    runs-on: macos-latest
+#    needs: push-django
+    runs-on: macos-latest
     if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v2
