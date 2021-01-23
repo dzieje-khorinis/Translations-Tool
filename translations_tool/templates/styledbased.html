@@ -2,32 +2,36 @@
 {% load static i18n %}
 
 {% block head %}
-    <script src="{% static 'js/jquery-3.5.1.min.js' %}"></script>
-    <script src="{% static 'js/tree.jquery.js' %}"></script>
-    <script src="{% static 'js/jquery-ui.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'css/jqtree.css' %}">
-    <link rel="stylesheet" href="{% static 'css/jquery-ui.css' %}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+  <script src="{% static 'js/jquery-3.5.1.min.js' %}"></script>
+  <script src="{% static 'js/tree.jquery.js' %}"></script>
+  <script src="{% static 'js/jquery-ui.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'css/jqtree.css' %}">
+  <link rel="stylesheet" href="{% static 'css/jquery-ui.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.23/datatables.min.css"/>
+  <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.23/datatables.min.js"></script>
+
 {% endblock head %}
 
+
 {% block header %}
-    <nav>
-        <a href="{% url 'translations:index' %}" class="logo">
-            <div>{% trans "Homepage" %}</div>
-        </a>
-        <ul>
-            <li>
-                <a href="{% url 'users:profile' %}" class="link">{% trans "Profile" %}</a>
-            </li>
-            <li>
-                <a href="{% url 'logout' %}" class="link">{% trans "Logout" %}</a>
-            </li>
-            {% include 'set_language.html' %}
+  <nav>
+    <a href="{% url 'translations:index' %}" class="logo">
+      <div>{% trans "Homepage" %}</div>
+    </a>
+    <ul>
+      <li>
+        <a href="{% url 'users:profile' %}" class="link">{% trans "Profile" %}</a>
+      </li>
+      <li>
+        <a href="{% url 'logout' %}" class="link">{% trans "Logout" %}</a>
+      </li>
+      {% include 'set_language.html' %}
 
 
-        </ul>
+    </ul>
 
-    </nav>
+  </nav>
 
 
 {% endblock header %}

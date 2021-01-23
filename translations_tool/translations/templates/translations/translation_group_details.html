@@ -9,6 +9,17 @@
     <table></table>
   </div>
 </div>
+
+<table class="datatable">
+  <thead>
+  <tr>
+    <th>{% trans "Key" %}</th>
+    <th>{% trans "Value" %}</th>
+    <th>{% trans "State" %}</th>
+  </tr>
+  </thead>
+</table>
+
 <script>
 
   chartColors = {
@@ -134,8 +145,21 @@
     }
   };
 
+
+
   {% if states_counts %}
     var ctx = document.getElementById('chart-area').getContext('2d');
     window.myPie = new Chart(ctx, config);
+
+    $(document).ready(function () {
+      var oTable = $('.datatable').dataTable({
+        "processing": true,
+        "serverSide": true,
+        "ajax": "{% url 'translations:translation_list_json' %}?lang={{ lang }}&group={{ group.id }}",
+        "info":     false,
+        "lengthChange": false,
+        "pageLength": 25,
+      });
+    });
   {% endif %}
 </script>

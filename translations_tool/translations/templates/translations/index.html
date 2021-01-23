@@ -98,7 +98,7 @@
                   }
                   if (url !== null) {
                     $("div.translation-wrapper").html('');
-                    $.get(url + "?node_id=" + node_id, function (data) {
+                    $.get(url + "?lang={{ lang }}&node_id=" + node_id, function (data) {
                       $("div.translation-wrapper").html(data);
                     });
                   }
