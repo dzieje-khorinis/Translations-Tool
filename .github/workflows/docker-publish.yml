@@ -24,11 +24,11 @@ jobs:
         run: docker build . --file ./compose/production/django/Dockerfile --tag $DJANGO_IMAGE_NAME
 
       - name: Log into registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+        run: echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Push django image
         run: |
-          IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$DJANGO_IMAGE_NAME
+          IMAGE_ID=ghcr.io/dzieje-khorinis/$DJANGO_IMAGE_NAME
           # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
           # Strip git ref prefix from version
@@ -41,21 +41,21 @@ jobs:
           echo VERSION=$VERSION
           docker tag $DJANGO_IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
-  deploy:
-    needs: push-django
-    runs-on: macos-latest
-    if: github.event_name == 'push'
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install SSH key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          name: id_rsa
-          known_hosts: ${{ secrets.KNOWN_HOSTS }}
-
-      - name: Run deploy script
-        run: cat scripts/deploy.sh | ssh -o "IdentitiesOnly=yes" -i ~/.ssh/id_rsa deploy-user@198.23.228.35
+#  deploy:
+#    needs: push-django
+#    runs-on: macos-latest
+#    if: github.event_name == 'push'
+#    steps:
+#      - uses: actions/checkout@v2
+#      - name: Install SSH key
+#        uses: shimataro/ssh-key-action@v2
+#        with:
+#          key: ${{ secrets.SSH_PRIVATE_KEY }}
+#          name: id_rsa
+#          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+#
+#      - name: Run deploy script
+#        run: cat scripts/deploy.sh | ssh -o "IdentitiesOnly=yes" -i ~/.ssh/id_rsa deploy-user@198.23.228.35
 #  push-db:
 #    runs-on: ubuntu-latest
 #    if: github.event_name == 'push'
