@@ -5,7 +5,6 @@ from simple_history.models import HistoricalRecords
 from translated_fields import TranslatedField
 
 
-
 class TranslationGroup(models.Model):
     name = TranslatedField(models.CharField(max_length=255, blank=True))
     parent = models.ForeignKey("self", on_delete=models.SET_NULL, blank=True, null=True)
