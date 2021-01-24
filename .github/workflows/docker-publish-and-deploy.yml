@@ -3,7 +3,7 @@ name: Build Production Containers + Deploy App
 on:
   push:
     branches:
-      - main
+      - deploy-2
     tags:
       - v*
 
@@ -36,7 +36,7 @@ jobs:
           # Strip "v" prefix from tag name
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
           # Use Docker `latest` tag convention
-          [ "$VERSION" == "main" ] && VERSION=latest
+          [ "$VERSION" == "deploy-2" ] && VERSION=latest
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
           docker tag $DJANGO_IMAGE_NAME $IMAGE_ID:$VERSION
