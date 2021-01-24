@@ -47,19 +47,34 @@ class UserCreationFormWithRoles(UserCreationForm):
         super().__init__(*args, **kwargs)
 
         role_choices = []
-        if user.role == User.COORDINATOR:
-            role_choices.append((User.TRANSLATOR, roles[User.TRANSLATOR]))
-        if user.role == User.ADMIN:
-            role_choices.append((User.COORDINATOR, roles[User.COORDINATOR]))
-        if user.is_superuser:
-            role_choices.append((User.ADMIN, roles[User.ADMIN]))
-
         language_choices = []
         if user.role == User.COORDINATOR:
-            language_choices.append((user.role_related_language, languages[user.role_related_language]))
+            role_choices.extend(
+                [
+                    (User.TRANSLATOR, roles[User.TRANSLATOR]),
+                ]
+            )
+            language_choices.extend(
+                [
+                    (user.role_related_language, languages[user.role_related_language]),
+                ]
+            )
         elif user.role == User.ADMIN:
+            role_choices.extend(
+                [
+                    (User.COORDINATOR, roles[User.COORDINATOR]),
+                    (User.TRANSLATOR, roles[User.TRANSLATOR]),
+                ]
+            )
             language_choices.extend(settings.LANGUAGES)
         elif user.is_superuser:
+            role_choices.extend(
+                [
+                    (User.COORDINATOR, roles[User.COORDINATOR]),
+                    (User.TRANSLATOR, roles[User.TRANSLATOR]),
+                    (User.ADMIN, roles[User.ADMIN]),
+                ]
+            )
             language_choices.append(("", "---------"))
             language_choices.extend(settings.LANGUAGES)
 
