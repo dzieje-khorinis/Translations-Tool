@@ -13,6 +13,6 @@ urlpatterns = [
     path("save_translation/", views.save_translation_view, name="save_translation"),
     path("translation_list/", login_required(TranslationListJson.as_view()), name="translation_list_json"),
     path("user_list/", views.user_list, name="user_list"),
-    path("create_user/", views.create_user, name="create_user"),
-    path("remove_user/", views.remove_user, name="remove_user"),
+    # path("create_user/", views.UserCreateView.as_view(), name="create_user"),
+    path("user_activation/<int:user_id>/<int:activate>", views.user_activation, name="user_activation"),
 ]

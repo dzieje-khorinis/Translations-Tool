@@ -20,6 +20,11 @@
       <div>{% trans "Homepage" %}</div>
     </a>
     <ul>
+      {% if not user.is_translator %}
+      <li>
+        <a href="{% url 'translations:user_list' %}" class="link">{% trans "Users" %}</a>
+      </li>
+      {% endif %}
       <li>
         <a href="{% url 'users:profile' %}" class="link">{% trans "Profile" %}</a>
       </li>

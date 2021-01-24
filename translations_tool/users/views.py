@@ -4,9 +4,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, render
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import DetailView, RedirectView, UpdateView
+from django.views.generic import CreateView, DetailView, RedirectView, UpdateView
+
+from translations_tool.users.forms import UserCreationFormWithRoles
 
 User = get_user_model()
 
@@ -70,3 +72,14 @@ def change_password_view(request):
     else:
         form = PasswordChangeForm(request.user)
     return render(request, "users/change_password.html", {"form": form})
+
+
+class UserCreateView(CreateView):
+    form_class = UserCreationFormWithRoles
+    template_name = "translations/add_user.html"
+    success_url = reverse_lazy("translations:user_list")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["request"] = self.request
+        return kwargs

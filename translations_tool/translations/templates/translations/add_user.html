@@ -1,0 +1,38 @@
+{% extends "styledbased.html" %}
+{% load i18n %}
+
+{% block content %}
+  <section class="login">
+    <div class="login_wrapper">
+      <h2>{% trans "Add user" %}</h2>
+
+      {% if form.errors %}
+        <div class="errors">
+          {% for error in form.non_field_errors %}
+            <p class="error">{{ error|escape }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <form method="post" action="{% url 'users:create_user' %}">
+        {% csrf_token %}
+
+        {% for field in form %}
+          <div class="input_wrapper">
+            {{ field.label_tag }}
+            {{ field }}
+            {% for error in field.errors %}
+              <p class="error">{{ error|escape }}</p>
+            {% endfor %}
+          </div>
+        {% endfor %}
+
+        <div class="input_wrapper">
+          <input class="login_submit" type="submit" value="{% trans 'Add user' as text %}{{ text|upper }}">
+        </div>
+      </form>
+    </div>
+  </section>
+
+
+{% endblock %}

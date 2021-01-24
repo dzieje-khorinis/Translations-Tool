@@ -1,9 +1,11 @@
+from django.conf import settings
 from django.contrib.auth import forms as admin_forms
-from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import UsernameField
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-User = get_user_model()
+# User = get_user_model()
+from translations_tool.users.models import User
 
 
 class UserChangeForm(admin_forms.UserChangeForm):
@@ -29,3 +31,39 @@ class UserCreationForm(admin_forms.UserCreationForm):
             return username
 
         raise ValidationError(self.error_messages["duplicate_username"])
+
+
+class UserCreationFormWithRoles(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ("username", "role", "role_related_language")
+        field_classes = {"username": UsernameField}
+
+    def __init__(self, *args, **kwargs):
+        request = kwargs.pop("request")
+        user = request.user
+        roles = dict(User.ROLE)
+        languages = dict(settings.LANGUAGES)
+        super().__init__(*args, **kwargs)
+
+        role_choices = []
+        if user.role == User.COORDINATOR:
+            role_choices.append((User.TRANSLATOR, roles[User.TRANSLATOR]))
+        if user.role == User.ADMIN:
+            role_choices.append((User.COORDINATOR, roles[User.COORDINATOR]))
+        if user.is_superuser:
+            role_choices.append((User.ADMIN, roles[User.ADMIN]))
+
+        language_choices = []
+        if user.role == User.COORDINATOR:
+            language_choices.append((user.role_related_language, languages[user.role_related_language]))
+        elif user.role == User.ADMIN:
+            language_choices.extend(settings.LANGUAGES)
+        elif user.is_superuser:
+            language_choices.append(("", "---------"))
+            language_choices.extend(settings.LANGUAGES)
+
+        self.fields["role"].choices = role_choices
+        self.fields["role_related_language"].choices = language_choices
+
+        print("HELLO")

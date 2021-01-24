@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404, render
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from ratelimit.decorators import ratelimit
 
@@ -198,14 +199,29 @@ class TranslationListJson(BaseDatatableView):
 
 @login_required
 def user_list(request):
-    return render(request, "translations/user_list.html")
+    user = request.user
+
+    ctx = {
+        "editable_users": user.editable_users(),
+    }
+    return render(request, "translations/user_list.html", context=ctx)
 
 
+@require_http_methods(["POST"])
+@csrf_exempt
 @login_required
-def create_user(request):
-    pass
+def user_activation(request, user_id, activate):
+    user = get_object_or_404(User, id=user_id)
+    print("activate", activate)
+    user.is_active = activate
+    user.save()
+    return JsonResponse({"status": "success"})
 
 
-@login_required
-def remove_user(request):
-    pass
+# @require_http_methods(["GET", "POST"])
+# @login_required
+# def user_creation(request):
+#     if request.method == 'GET':
+#         return render(request, "translations/add_user.html", context={
+#             'form': None,
+#         })

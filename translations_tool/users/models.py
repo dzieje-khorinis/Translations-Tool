@@ -22,6 +22,24 @@ class User(AbstractUser):
     role = CharField(max_length=255, choices=ROLE, blank=True)
     role_related_language = CharField(max_length=2, choices=settings.LANGUAGES, blank=True)
 
+    last_active_at = models.DateTimeField(auto_now=True)
+
+    def editable_users(self):
+        qs = User.objects.exclude(is_superuser=True).order_by("id")
+        if self.is_superuser:
+            return qs
+
+        if self.role == User.ADMIN:
+            return qs.exclude(role=User.ADMIN)
+
+        if self.role == User.COORDINATOR:
+            return qs.filter(role=User.TRANSLATOR, role_related_language=self.role_related_language)
+
+        return qs.none()
+
+    def is_translator(self):
+        return not self.is_superuser and self.role == User.TRANSLATOR
+
     def is_admin(self):
         return self.is_superuser or self.role == User.ADMIN
 

@@ -698,6 +698,27 @@ textarea.translation-content[disabled] {
   color: #BBB;
 }
 
+table.generic {
+  margin: auto;
+  background-color: #202E44;
+}
+table.generic td, table.generic th {
+  padding: 5px;
+}
+
+table.generic tr.even {
+  background-color: #16202f;
+}
+
+
+p.link {
+  cursor: pointer;
+  color: #BBB;
+}
+p.link:hover {
+  color: #FFF;
+}
+
 /* DATATABLES STYLE */
 
 

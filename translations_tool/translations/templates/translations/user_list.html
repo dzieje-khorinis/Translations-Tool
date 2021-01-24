@@ -2,29 +2,50 @@
 {% load i18n %}
 
 {% block content %}
-    <section class="account-panel">
+  <br>
+  <br>
+  <table class="generic">
+    <thead>
+    <tr>
+      <th>{% trans "Username" %}</th>
+      <th>{% trans "Role" %}</th>
+{#      <th>{% trans "Last activity" %}</th>#}
+      <th>{% trans "Activated" %}</th>
+      <th>{% trans "Activation" %}</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for user in editable_users %}
 
-        <div class="account-panel-wrapper">
-            <h1 class="account-panel-header">{% trans "My Profile" %}</h1>
-            <h2 class="account-panel-header">{% trans "Data" %}</h2>
-            <div class="account-panel-info">
-                <span class="account-panel-key">Username</span>
-                <span class="account-panel-value">{{ user.username }}</span>
-            </div>
-            <div class="account-panel-info">
-                <span class="account-panel-key">Email</span>
-                <span class="account-panel-value">{% if user.email %}{{ user.email }}{% else %}-{% endif %}</span>
-            </div>
-            <div class="account-panel-info">
-                <span class="account-panel-key">Role</span>
-                <span class="account-panel-value">{{ user.get_role }}</span>
-            </div>
-            <h2 class="account-panel-header">{% trans "Actions" %}</h2>
-            <div class="account-panel-links-wrapper">
-                <a href="{% url 'users:change_password' %}" class="account-panel-link">{% trans 'Change password' %}</a>
-            </div>
-        </div>
+      <tr class="{% cycle 'odd' 'even' %}">
+        <td>{{ user.username }}</td>
+        <td>{{ user.get_role }}</td>
+{#        <td>{{ user.last_active_at }}</td>#}
+        <td>{% if user.is_active %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</td>
+        <td style="text-align: center;">
+          {% if user.is_active %}
+            <p class="link" data-href="{% url 'translations:user_activation' user_id=user.id activate=0 %}">{% trans "Deactivate" %}</p>
+          {% else %}
+            <p class="link" data-href="{% url 'translations:user_activation' user_id=user.id activate=1 %}">{% trans "Activate" %}</p>
+          {% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
 
-    </section>
-
+  <br>
+  <br>
+  <p style="text-align: center;"><a style="color: white;" href="{% url 'users:create_user' %}">Add new user!</a></p>
 {% endblock content %}
+
+{% block js %}
+<script>
+$("p.link").click(function () {
+  var $this = $(this);
+  var url = $this.attr('data-href');
+  $.post(url, function (response) {
+    window.location.replace("{% url 'translations:user_list' %}");
+  });
+});
+</script>
+{% endblock %}
