@@ -17,6 +17,53 @@ from .models import Translation, TranslationGroup
 
 
 @login_required
+def translations(request):
+    lang = request.GET.get("lang", settings.LANGUAGE_CODE)
+
+    ctx = {
+        "languages": request.user.get_languages(),
+        "lang": lang,
+    }
+    return render(request, "translations/translations.html", context=ctx)
+
+
+class TranslationsJson(BaseDatatableView):
+    model = Translation
+    columns = ["id", "key"]
+    order_columns = ["id", "key"]
+    max_display_length = 500
+
+    def get_columns(self):
+        request = self.request
+        lang = request.user.get_translation_language(lang_code=request.GET.get("lang"))
+        print("get_columns.lang", lang)
+        columns = super().get_columns() + [f"value_{lang}", f"state_{lang}"]
+        print(columns)
+        return columns
+
+    def get_order_columns(self):
+        request = self.request
+        lang = request.user.get_translation_language(lang_code=request.GET.get("lang"))
+        print("get_order_columns.lang", lang)
+        columns = super().get_order_columns() + [f"value_{lang}", f"state_{lang}"]
+        print(columns)
+        return columns
+
+    def get_initial_queryset(self):
+        qs = super().get_initial_queryset()
+        group_id = self.request.GET.get("group")
+        if not group_id:
+            return qs
+
+        group = get_object_or_404(TranslationGroup, id=group_id)
+        subgroups = TranslationGroup.objects.filter(
+            Q(parent=group) | Q(parent__parent=group) | Q(parent__parent__parent=group)
+        )
+        groups_ids = set(subgroups.values_list("id", flat=True)) | {group.id}
+        return qs.filter(parent_id__in=groups_ids)
+
+
+@login_required
 def index_view(request):
     lang = request.GET.get("lang", settings.LANGUAGE_CODE)
 

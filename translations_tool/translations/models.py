@@ -42,6 +42,12 @@ class Translation(models.Model):
 
     order_index = models.IntegerField(default=0)
 
+    # translation metadata
+    file = models.CharField(max_length=1000, blank=True)
+    line = models.PositiveIntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     def __str__(self):
         return f"Translation: {self.key}"
 

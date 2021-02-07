@@ -7,6 +7,8 @@ from .views import TranslationListJson
 app_name = "translations"
 urlpatterns = [
     path("", views.index_view, name="index"),
+    path("translations/", views.translations, name="translations"),
+    path("translations_json/", login_required(views.TranslationsJson.as_view()), name="translations_json"),
     path("tree/", views.translation_tree_view, name="tree"),
     path("translation_details/", views.translation_details_view, name="translation_details"),
     path("translation_group_details/", views.translation_group_details_view, name="translation_group_details"),

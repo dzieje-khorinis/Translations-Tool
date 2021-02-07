@@ -1,0 +1,165 @@
+{% load static i18n %}
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="{% static 'js/jquery-3.5.1.min.js' %}"></script>
+  <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/v/zf-6.4.3/dt-1.10.23/af-2.3.5/b-1.6.5/cr-1.5.3/fc-3.3.2/fh-3.1.8/kt-2.6.0/r-2.2.7/rg-1.1.2/rr-1.2.7/sc-2.0.3/sb-1.0.1/sp-1.2.2/sl-1.3.1/datatables.min.css"/>
+
+  <script type="text/javascript"
+          src="https://cdn.datatables.net/v/zf-6.4.3/dt-1.10.23/af-2.3.5/b-1.6.5/cr-1.5.3/fc-3.3.2/fh-3.1.8/kt-2.6.0/r-2.2.7/rg-1.1.2/rr-1.2.7/sc-2.0.3/sb-1.0.1/sp-1.2.2/sl-1.3.1/datatables.min.js"></script>
+
+  <style>
+    table {
+      font-family: Arial;
+      font-size: 14px;
+    }
+
+    td.details-control {
+      background: url('https://datatables.net/examples/resources/details_open.png') no-repeat center center;
+      cursor: pointer;
+    }
+
+    tr.shown td.details-control {
+      background: url('https://datatables.net/examples/resources/details_close.png') no-repeat center center;
+    }
+
+
+    table.dataTable td {
+      word-break: break-word;
+    }
+
+  </style>
+
+</head>
+<body style="padding: 50px;">
+<h1>LANG: {{ LANGUAGE_CODE }}</h1>
+<p>
+  Toggle column: <a class="toggle-vis" data-column="1">Key</a> - <a class="toggle-vis" data-column="2">Value</a> - <a
+        class="toggle-vis" data-column="3">State</a>
+</p>
+<table id="example" class="display" style="width:100%"><!--responsive nowrap-->
+</table>
+<script>
+  function format(d) {
+    // `d` is the original data object for the row
+    return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
+            '<tr>' +
+            '<td>ID:</td>' +
+            '<td>' + d.id + '</td>' +
+            '</tr>' +
+            '<tr>' +
+            '<td>Key:</td>' +
+            '<td>' + d.key + '</td>' +
+            '</tr>' +
+            '<tr>' +
+            '<td>Value:</td>' +
+            '<td>' + d.value_pl + '</td>' +
+            '</tr>' +
+            '</table>';
+  }
+
+  var table = null;
+  $(document).ready(function () {
+    table = $('#example').DataTable({
+      "processing": true,
+      "serverSide": true,
+      "ajax": "{% url 'translations:translations_json' %}?lang={{ LANGUAGE_CODE }}",
+      'createdRow': function (row, data, dataIndex) {
+        {#$('td:eq(1)', row).css('overflow-wrap', 'break-word');#}
+        {#$('td:eq(1)', row).css('max-width', '200px');#}
+        {#$('td:eq(1)', row).css('width', '200px');#}
+        $(row).attr('id', data['id']);
+      },
+      "columns": [
+        {
+          "className": 'details-control',
+          orderable: false,
+          "data": null,
+          "defaultContent": '',
+          width: '20px',
+        },
+        {
+          title: 'Key',
+          data: 'key',
+          width: '20%',
+        },
+        {
+          title: 'Value ({{ LANGUAGE_CODE }})',
+          data: 'value_{{ LANGUAGE_CODE }}'
+        },
+        {
+          title: 'State ({{ LANGUAGE_CODE }})',
+          data: 'state_{{ LANGUAGE_CODE }}',
+          width: '100px',
+        },
+        {
+          title: 'ID',
+          data: 'id',
+          "visible": false,
+          "searchable": false
+        },
+        {
+          title: 'Edit',
+          data: null,
+          className: "center",
+          defaultContent: '<a href="" class="editor_edit">Edit</a>',
+          orderable: false,
+          width: '30px',
+        }
+      ],
+      "order": [[1, 'asc']],
+
+      fnFooterCallback: function (nRow, aaData, iStart, iEnd, aiDisplay) {
+        console.log('fnFooterCallback');
+        var api = this.api();
+        var size = 0;
+        aaData.forEach(function (x) {
+          size += (x['size']);
+        });
+        console.log('api.column(1).footer()', api.column(1).footer());
+        $(api.column(1).footer()).html(size);
+      }
+    });
+  });
+
+  $('#example').on('click', 'a.editor_edit', function (e) {
+    e.preventDefault();
+    console.log($(this).closest('tr'));
+
+    /*
+        editor.edit( $(this).closest('tr'), {
+            title: 'Edit record',
+            buttons: 'Update'
+        } );
+
+     */
+  });
+
+  $('a.toggle-vis').on('click', function (e) {
+    e.preventDefault();
+
+    // Get the column API object
+    var column = table.column($(this).attr('data-column'));
+
+    // Toggle the visibility
+    column.visible(!column.visible());
+  });
+
+  $('#example').on('click', 'td.details-control', function () {
+    var tr = $(this).closest('tr');
+    var row = table.row(tr);
+
+    if (row.child.isShown()) {
+      // This row is already open - close it
+      row.child.hide();
+      tr.removeClass('shown');
+    } else {
+      // Open this row
+      row.child(format(row.data())).show();
+      tr.addClass('shown');
+    }
+  });
+</script>
+</body>
+</html>
