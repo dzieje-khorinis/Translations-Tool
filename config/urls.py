@@ -6,6 +6,8 @@ from django.urls import include, path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
 
+from translations_tool.users.api.views import ChangePasswordView, ObtainAuthTokenView
+
 urlpatterns = [
     path("", include("translations_tool.translations.urls", namespace="translations")),
     # path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
@@ -21,6 +23,12 @@ urlpatterns = [
     path("i18n/", include("django.conf.urls.i18n")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
+# API URLS
+urlpatterns += [
+    path("api/", include("config.api_router")),
+    path("api/auth-token/", ObtainAuthTokenView.as_view()),
+    path("api/change_password/", ChangePasswordView.as_view()),
+]
 
 if settings.DEBUG:
     # This allows the error pages to be debugged during development, just visit

@@ -25,3 +25,6 @@ django-simple-history==2.12.0  # https://github.com/jazzband/django-simple-histo
 django-translated-fields==0.10.2  # https://github.com/matthiask/django-translated-fields/
 django-ratelimit==3.0.1  # https://github.com/jsocol/django-ratelimit/
 django-datatables-view==1.19.1  # https://bitbucket.org/pigletto/django-datatables-view/
+# Django REST Framework
+djangorestframework==3.12.4  # https://github.com/encode/django-rest-framework
+django-cors-headers==3.7.0 # https://github.com/adamchainz/django-cors-headers

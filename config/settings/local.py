@@ -26,9 +26,7 @@ CACHES = {
 # EMAIL
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
-EMAIL_BACKEND = env(
-    "DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
-)
+EMAIL_BACKEND = env("DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend")
 
 # WhiteNoise
 # ------------------------------------------------------------------------------
@@ -64,5 +62,9 @@ INSTALLED_APPS += ["django_extensions"]  # noqa F405
 
 # http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-eager-propagates
 CELERY_TASK_EAGER_PROPAGATES = True
+
+# django-cors-headers - https://github.com/adamchainz/django-cors-headers#setup
+CORS_ALLOWED_ORIGINS = ("http://localhost:3000",)
+
 # Your stuff...
 # ------------------------------------------------------------------------------

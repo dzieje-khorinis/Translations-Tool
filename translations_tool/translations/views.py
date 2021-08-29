@@ -36,17 +36,13 @@ class TranslationsJson(BaseDatatableView):
     def get_columns(self):
         request = self.request
         lang = request.user.get_translation_language(lang_code=request.GET.get("lang"))
-        print("get_columns.lang", lang)
         columns = super().get_columns() + [f"value_{lang}", f"state_{lang}"]
-        print(columns)
         return columns
 
     def get_order_columns(self):
         request = self.request
         lang = request.user.get_translation_language(lang_code=request.GET.get("lang"))
-        print("get_order_columns.lang", lang)
         columns = super().get_order_columns() + [f"value_{lang}", f"state_{lang}"]
-        print(columns)
         return columns
 
     def get_initial_queryset(self):
@@ -153,12 +149,7 @@ def translation_group_details_view(request):
     )
     groups_ids = set(subgroups.values_list("id", flat=True)) | {group.id}
     translations = Translation.objects.filter(parent_id__in=groups_ids)
-    print("groups_ids", groups_ids)
-    print("translations", translations)
-    print("count", translations.count())
-
     states_counts = translations.values(state=F(f"state_{lang}")).annotate(total=Count("state")).order_by("total")
-    print("states_counts", states_counts)
 
     ctx = {
         "group": group,
@@ -192,7 +183,6 @@ def save_translation_view(request):
         setattr(translation, f"value_{language}", value)
         setattr(translation, f"state_{language}", state)
         translation.save()
-        print(data)
     return JsonResponse(data, safe=False)
 
 
@@ -217,17 +207,13 @@ class TranslationListJson(BaseDatatableView):
     def get_columns(self):
         request = self.request
         lang = request.user.get_translation_language(lang_code=request.GET.get("lang"))
-        print("get_columns.lang", lang)
         columns = super().get_columns() + [f"value_{lang}", f"state_{lang}"]
-        print(columns)
         return columns
 
     def get_order_columns(self):
         request = self.request
         lang = request.user.get_translation_language(lang_code=request.GET.get("lang"))
-        print("get_order_columns.lang", lang)
         columns = super().get_order_columns() + [f"value_{lang}", f"state_{lang}"]
-        print(columns)
         return columns
 
     def get_initial_queryset(self):
@@ -259,16 +245,6 @@ def user_list(request):
 @login_required
 def user_activation(request, user_id, activate):
     user = get_object_or_404(User, id=user_id)
-    print("activate", activate)
     user.is_active = activate
     user.save()
     return JsonResponse({"status": "success"})
-
-
-# @require_http_methods(["GET", "POST"])
-# @login_required
-# def user_creation(request):
-#     if request.method == 'GET':
-#         return render(request, "translations/add_user.html", context={
-#             'form': None,
-#         })

@@ -24,6 +24,13 @@ class User(AbstractUser):
 
     last_active_at = models.DateTimeField(auto_now=True)
 
+    def lower_roles(self):
+        if self.is_admin():
+            return ["COORDINATOR", "TRANSLATOR"]
+        if self.role == "COORDINATOR":
+            return ["TRANSLATOR"]
+        return []
+
     def editable_users(self):
         qs = User.objects.exclude(is_superuser=True).order_by("id")
         if self.is_superuser:

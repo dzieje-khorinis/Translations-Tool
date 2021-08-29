@@ -4,7 +4,6 @@ from django.contrib.auth.forms import UsernameField
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-# User = get_user_model()
 from translations_tool.users.models import User
 
 
@@ -80,5 +79,3 @@ class UserCreationFormWithRoles(UserCreationForm):
 
         self.fields["role"].choices = role_choices
         self.fields["role_related_language"].choices = language_choices
-
-        print("HELLO")

@@ -24,7 +24,6 @@ class ChangedFieldMixin:
             for change in delta.changes:
                 before[change.field] = change.old
                 after[change.field] = change.new
-                print(type(change.old))
 
         result = ""
         if before and after:
@@ -81,7 +80,8 @@ class TranslationGroupAdmin(ChangedFieldMixin, TranslatedFieldAdmin, SimpleHisto
 
 class TranslationAdmin(ChangedFieldMixin, TranslatedFieldAdmin, SimpleHistoryAdmin, metaclass=ColoredStateMeta):
     history_list_display = ["changed"]
-    list_display = ["key", "parent"] + flatten(zip(Translation.value.fields, Translation.state.fields))
+    list_display = ["key"] + flatten(zip(Translation.value.fields, Translation.state.fields))
+    search_fields = list_display
 
 
 admin.site.register(Translation, TranslationAdmin)
