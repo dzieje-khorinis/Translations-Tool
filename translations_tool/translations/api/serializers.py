@@ -1,7 +1,18 @@
 from django.conf import settings
 from rest_framework import serializers
 
-from translations_tool.translations.models import Translation, TranslationGroup
+from translations_tool.translations.api.fields import CommaSeparatedListField
+from translations_tool.translations.models import (
+    Directory,
+    Translation,
+    TranslationGroup,
+)
+
+
+class DirectorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Directory
+        fields = ["id", "name", "path", "leaf"]
 
 
 class TranslationGroupSerializer(serializers.ModelSerializer):
@@ -33,6 +44,8 @@ class TranslationPaginationSerializer(serializers.Serializer):
     searchTerm = serializers.CharField(max_length=128, default="", write_only=True)
     group = serializers.CharField(max_length=128, default="", write_only=True)
     state = serializers.CharField(max_length=128, default="", write_only=True)
+    path = serializers.CharField(max_length=2000, default="", write_only=True)
+    states = CommaSeparatedListField(max_length=128, default="", write_only=True)
 
 
 class TranslationSaveSerializer(serializers.Serializer):

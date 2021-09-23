@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-19 01:01+0100\n"
+"POT-Creation-Date: 2021-09-23 16:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -243,6 +243,9 @@ msgstr ""
 msgid "Homepage"
 msgstr "Strona główna"
 
+msgid "Users"
+msgstr ""
+
 msgid "Profile"
 msgstr "Profil"
 
@@ -267,6 +270,9 @@ msgstr "Do poprawki"
 msgid "Accepted"
 msgstr "Zaakceptowany"
 
+msgid "Add user"
+msgstr ""
+
 msgid "Successfully saved tree."
 msgstr "Pomyślnie zapisano drzewo."
 
@@ -282,8 +288,43 @@ msgstr "Stan tłumaczenia"
 msgid "Save"
 msgstr "Zapisz"
 
+msgid "Key"
+msgstr ""
+
+msgid "Value"
+msgstr ""
+
+msgid "Username"
+msgstr ""
+
+msgid "Role"
+msgstr ""
+
+msgid "Activated"
+msgstr ""
+
+#, fuzzy
+#| msgid "Actions"
+msgid "Activation"
+msgstr "Akcje"
+
+msgid "Yes"
+msgstr ""
+
+msgid "No"
+msgstr ""
+
+msgid "Deactivate"
+msgstr ""
+
+msgid "Activate"
+msgstr ""
+
 msgid "Successfully saved translation."
 msgstr "Pomyślnie zapisano tłumaczenie"
+
+msgid "Too many requests. Please wait."
+msgstr ""
 
 msgid "Custom"
 msgstr ""
@@ -297,7 +338,25 @@ msgstr "Pozwoleństwa"
 msgid "Important dates"
 msgstr "Ważne daty"
 
-msgid "Users"
+msgid "Your old password was entered incorrectly. Please enter it again."
+msgstr ""
+
+msgid "The two password fields didn't match."
+msgstr ""
+
+msgid "User does not exist."
+msgstr ""
+
+msgid "You do not have permission to perform this action!"
+msgstr ""
+
+msgid "User already exists."
+msgstr ""
+
+msgid "Invalid role."
+msgstr ""
+
+msgid "Invalid role related language."
 msgstr ""
 
 msgid "This username has already been taken."

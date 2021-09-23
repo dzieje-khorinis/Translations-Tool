@@ -7,7 +7,7 @@ from django.utils.translation import gettext as _
 from simple_history.admin import SimpleHistoryAdmin
 from translated_fields import TranslatedFieldAdmin
 
-from .models import Translation, TranslationGroup
+from .models import Directory, Translation, TranslationGroup
 
 
 def flatten(list_of_lists):
@@ -84,5 +84,12 @@ class TranslationAdmin(ChangedFieldMixin, TranslatedFieldAdmin, SimpleHistoryAdm
     search_fields = list_display
 
 
+class DirectoryAdmin(ChangedFieldMixin, SimpleHistoryAdmin):
+    history_list_display = ["name", "path"]
+    list_display = history_list_display
+    search_fields = list_display
+
+
 admin.site.register(Translation, TranslationAdmin)
 admin.site.register(TranslationGroup, TranslationGroupAdmin)
+admin.site.register(Directory, DirectoryAdmin)

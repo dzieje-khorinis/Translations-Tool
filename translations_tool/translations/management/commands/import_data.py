@@ -4,7 +4,11 @@ import re
 
 from django.core.management.base import BaseCommand
 
-from translations_tool.translations.models import Translation, TranslationGroup
+from translations_tool.translations.models import (
+    Directory,
+    Translation,
+    TranslationGroup,
+)
 
 PATTERN = re.compile(r"[a-zA-Z]")
 
@@ -25,6 +29,7 @@ class Command(BaseCommand):
         print(len(data))
         Translation.objects.all().delete()
         TranslationGroup.objects.all().delete()
+        Directory.objects.all().delete()
 
         count = len(data)
         for i, row in enumerate(data, start=1):
@@ -55,25 +60,35 @@ class Command(BaseCommand):
                     parent=prev_group,
                 )
 
+            filepath = row["metadata"]["path"]
+            if not filepath:
+                continue
+
             creation_kwargs = {
                 "key": key,
                 "value_pl": value,
                 "parent": prev_group,
+                "file": filepath,
+                "line": row["metadata"]["line"],
             }
-            path = row["metadata"]["path"]
-            line = row["metadata"]["line"]
-            if path:
-                creation_kwargs["file"] = path
-            if line:
-                creation_kwargs["line"] = line
 
             try:
                 translation = Translation.objects.get(key=key)
                 if not (key_from_value or translation.value_pl == value):
-                    print(key, row)
+                    print("ALERT!!!", key, row)
                     raise
                 continue
             except Translation.DoesNotExist:
                 pass
 
-            Translation.objects.get_or_create(**creation_kwargs)
+            translation, _ = Translation.objects.get_or_create(**creation_kwargs)
+
+            parent = None
+            path = ""
+            *parts, last_part = filepath.strip("/").split("/")
+            for part in parts:
+                path += f"/{part}"
+                parent, _ = Directory.objects.get_or_create(name=part, path=path, parent=parent)
+
+            path += f"/{last_part}"
+            parent, _ = Directory.objects.get_or_create(name=last_part, path=path, parent=parent, leaf=True)

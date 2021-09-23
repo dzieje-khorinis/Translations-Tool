@@ -5,6 +5,16 @@ from simple_history.models import HistoricalRecords
 from translated_fields import TranslatedField
 
 
+class Directory(models.Model):
+    name = models.CharField(max_length=255)
+    path = models.CharField(max_length=255)
+    parent = models.ForeignKey("self", related_name="children", on_delete=models.CASCADE, blank=True, null=True)
+    leaf = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Directory: {self.path}"
+
+
 class TranslationGroup(models.Model):
     name = TranslatedField(models.CharField(max_length=255, blank=True))
     parent = models.ForeignKey("self", on_delete=models.SET_NULL, blank=True, null=True)
@@ -42,8 +52,8 @@ class Translation(models.Model):
 
     order_index = models.IntegerField(default=0)
 
-    # translation metadata
-    file = models.CharField(max_length=1000, blank=True)
+    # metadata
+    file = models.CharField(max_length=1000, blank=True, db_index=True)
     line = models.PositiveIntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

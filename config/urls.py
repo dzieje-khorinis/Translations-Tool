@@ -5,8 +5,29 @@ from django.contrib.auth import views as auth_views
 from django.urls import include, path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
+from rest_framework.routers import DefaultRouter, SimpleRouter
 
-from translations_tool.users.api.views import ChangePasswordView, ObtainAuthTokenView
+from translations_tool.translations.api.views import (
+    DirectoryViewSet,
+    TranslationGroupViewSet,
+    TranslationViewSet,
+)
+from translations_tool.users.api.views import (
+    ChangePasswordView,
+    ObtainAuthTokenView,
+    UserViewSet,
+)
+
+if settings.DEBUG:
+    router = DefaultRouter()
+else:
+    router = SimpleRouter()
+
+router.register("users", UserViewSet)
+router.register("groups", TranslationGroupViewSet)
+router.register("translations", TranslationViewSet)
+router.register("directories", DirectoryViewSet)
+
 
 urlpatterns = [
     path("", include("translations_tool.translations.urls", namespace="translations")),
@@ -25,7 +46,7 @@ urlpatterns = [
 
 # API URLS
 urlpatterns += [
-    path("api/", include("config.api_router")),
+    path("api/", include(router.urls)),
     path("api/auth-token/", ObtainAuthTokenView.as_view()),
     path("api/change_password/", ChangePasswordView.as_view()),
 ]

@@ -1,4 +1,6 @@
 from django.db.models import Count, Q
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
@@ -6,13 +8,47 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from ..models import Translation, TranslationGroup
+from ..models import Directory, Translation, TranslationGroup
 from .serializers import (
+    DirectorySerializer,
     TranslationGroupSerializer,
     TranslationPaginationSerializer,
     TranslationSaveSerializer,
     TranslationSerializer,
 )
+
+
+class DirectoryViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
+    serializer_class = DirectorySerializer
+    queryset = Directory.objects.all()
+
+    @method_decorator(cache_page(60 * 60 * 2))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @action(detail=False)
+    def search(self, request):
+        search = self.request.GET.get("search")
+        qs = super().get_queryset()
+        if search:
+            qs = qs.filter(path__icontains=search)
+        qs = qs.order_by("path")[:10]
+        serializer = self.get_serializer(qs, many=True)
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+    @method_decorator(cache_page(60 * 60 * 2))
+    @action(detail=False)
+    def root(self, request):
+        qs = self.get_queryset()
+        serializer = self.get_serializer(qs.filter(parent=None).first(), many=False)
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+    @method_decorator(cache_page(60 * 60 * 2))
+    @action(detail=True)
+    def children(self, request, pk=None):
+        parent = self.get_object()
+        serializer = self.get_serializer(parent.children.order_by("name"), many=True)
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
 
 
 class TranslationGroupViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
@@ -39,7 +75,7 @@ class TranslationPagination(PageNumberPagination):
 class TranslationViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
     serializer_class = TranslationSerializer
     pagination_class = TranslationPagination
-    queryset = Translation.objects.all()
+    queryset = Translation.objects.order_by("id")
 
     def list(self, request, *args, **kwargs):
         def prepare_aggregations(qs):
@@ -61,6 +97,12 @@ class TranslationViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
 
         data_language = filters["dataLanguage"] or "en"
         total_aggregations = prepare_aggregations(qs)
+
+        if filters["path"]:
+            qs = qs.filter(file__istartswith=filters["path"])
+
+        if filters["states"]:
+            qs = qs.filter(**{f"state_{data_language}__in": filters["states"]})
 
         if filters["state"]:
             qs = qs.filter(**{f"state_{data_language}": filters["state"]})

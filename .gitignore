@@ -330,3 +330,4 @@ translations_tool/media/
 .env
 .envs/*
 !.envs/.local/
+tmp/
