@@ -41,21 +41,6 @@ jobs:
           echo VERSION=$VERSION
           docker tag $DJANGO_IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
-  deploy:
-    needs: push-django
-    runs-on: macos-latest
-    if: github.event_name == 'push'
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install SSH key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          name: id_rsa
-          known_hosts: ${{ secrets.KNOWN_HOSTS }}
-
-      - name: Run deploy script
-        run: cat scripts/deploy.sh | ssh -o "IdentitiesOnly=yes" -i ~/.ssh/id_rsa deploy-user@198.23.228.35
 #  push-db:
 #    runs-on: ubuntu-latest
 #    if: github.event_name == 'push'
