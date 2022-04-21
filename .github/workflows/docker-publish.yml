@@ -18,7 +18,7 @@ jobs:
     if: github.event_name == 'push'
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.0.2
 
       - name: Build django image
         run: docker build . --file ./compose/production/django/Dockerfile --tag $DJANGO_IMAGE_NAME
@@ -46,7 +46,7 @@ jobs:
 #    if: github.event_name == 'push'
 #
 #    steps:
-#      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v3.0.2
 #
 #      - name: Build postgres image
 #        run: docker build . --file ./compose/production/postgres/Dockerfile --tag $DB_IMAGE_NAME
@@ -80,7 +80,7 @@ jobs:
 #    if: github.event_name == 'push'
 #
 #    steps:
-#      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v3.0.2
 #
 #      - name: Build traefik image
 #        run: docker build . --file ./compose/production/traefik/Dockerfile --tag $ROUTER_IMAGE_NAME
