@@ -53,3 +53,27 @@ class TranslationSaveSerializer(serializers.Serializer):
     state = serializers.CharField(max_length=128, write_only=True, required=True)
     text = serializers.CharField(max_length=128, write_only=True, required=True)
     language = serializers.CharField(max_length=2, write_only=True, required=True)
+
+
+class HistoryPaginationSerializer(serializers.Serializer):
+    translation_id = serializers.IntegerField(required=False)
+    user_id = serializers.IntegerField(required=False)
+
+
+class HistoryUserSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    username = serializers.CharField()
+
+
+class HistoryRecordSerializer(serializers.Serializer):
+    id = serializers.IntegerField(source="history_id")
+    translation_id = serializers.IntegerField(source="id")
+    date = serializers.DateTimeField(source="history_date")
+    user = HistoryUserSerializer(source="history_user")
+    diff = serializers.SerializerMethodField()
+
+    def get_diff(self, obj):
+        prev_record = obj.prev_record
+        if prev_record:
+            return [change.__dict__ for change in obj.diff_against(prev_record).changes]
+        return []

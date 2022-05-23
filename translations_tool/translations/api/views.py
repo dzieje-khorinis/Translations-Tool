@@ -11,6 +11,8 @@ from rest_framework.viewsets import GenericViewSet
 from ..models import Directory, Translation, TranslationGroup
 from .serializers import (
     DirectorySerializer,
+    HistoryPaginationSerializer,
+    HistoryRecordSerializer,
     TranslationGroupSerializer,
     TranslationPaginationSerializer,
     TranslationSaveSerializer,
@@ -64,6 +66,43 @@ class TranslationGroupViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet
         if search:
             qs = qs.filter(**{f"{field_name}__icontains": search})
         return qs.order_by(f"{field_name}")[:10]
+
+
+class HistoryRecordPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = "per_page"
+    max_page_size = 50
+
+
+class TranslationsHistoryViewSet(ListModelMixin, GenericViewSet):
+    serializer_class = HistoryRecordSerializer
+    pagination_class = HistoryRecordPagination
+    queryset = Translation.history.order_by("-history_date").select_related("history_user")
+
+    def list(self, request, *args, **kwargs):
+        qs = self.get_queryset()
+
+        serializer = HistoryPaginationSerializer(data=request.GET, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        filters = serializer.validated_data
+
+        if "translation_id" in filters:
+            qs = qs.filter(id=filters["translation_id"])
+
+        if "user_id" in filters:
+            qs = qs.filter(history_user_id=filters["user_id"])
+
+        qs = self.paginate_queryset(qs)
+        paginator = self.paginator.page.paginator
+        serializer = self.get_serializer(qs, many=True)
+        data = {
+            "page": self.paginator.page.number,
+            "per_page": paginator.per_page,
+            "total": paginator.count,
+            "total_pages": paginator.num_pages,
+            "data": serializer.data,
+        }
+        return Response(status=status.HTTP_200_OK, data=data)
 
 
 class TranslationPagination(PageNumberPagination):

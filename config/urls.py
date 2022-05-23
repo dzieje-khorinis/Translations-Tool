@@ -10,6 +10,7 @@ from rest_framework.routers import DefaultRouter, SimpleRouter
 from translations_tool.translations.api.views import (
     DirectoryViewSet,
     TranslationGroupViewSet,
+    TranslationsHistoryViewSet,
     TranslationViewSet,
 )
 from translations_tool.users.api.views import (
@@ -26,6 +27,7 @@ else:
 router.register("users", UserViewSet)
 router.register("groups", TranslationGroupViewSet)
 router.register("translations", TranslationViewSet)
+router.register("translations_history", TranslationsHistoryViewSet)
 router.register("directories", DirectoryViewSet)
 
 
