@@ -1,8 +1,16 @@
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from model_utils import FieldTracker
 from simple_history.models import HistoricalRecords
 from translated_fields import TranslatedField
+
+
+class LanguageHistoricalModel(models.Model):
+    language = models.CharField(max_length=2, choices=settings.LANGUAGES, blank=True)
+
+    class Meta:
+        abstract = True
 
 
 class Directory(models.Model):
@@ -48,7 +56,8 @@ class Translation(models.Model):
     value = TranslatedField(models.TextField(max_length=2000, blank=True))
     state = TranslatedField(models.CharField(max_length=255, choices=STATUS, default=NEW))
 
-    history = HistoricalRecords()
+    history = HistoricalRecords(bases=[LanguageHistoricalModel])
+    tracker = FieldTracker()
 
     order_index = models.IntegerField(default=0)
 
@@ -57,6 +66,14 @@ class Translation(models.Model):
     line = models.PositiveIntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.tracker.changed():
+            self.skip_history_when_saving = True
+        result = super().save(*args, **kwargs)
+        if hasattr(self, "skip_history_when_saving"):
+            del self.skip_history_when_saving
+        return result
 
     def __str__(self):
         return f"Translation: {self.key}"

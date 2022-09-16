@@ -51,7 +51,7 @@ class TranslationPaginationSerializer(serializers.Serializer):
 class TranslationSaveSerializer(serializers.Serializer):
     translation_id = serializers.IntegerField(write_only=True, required=True)
     state = serializers.CharField(max_length=128, write_only=True, required=True)
-    text = serializers.CharField(max_length=128, write_only=True, required=True)
+    text = serializers.CharField(max_length=128, write_only=True, required=True, allow_blank=True)
     language = serializers.CharField(max_length=2, write_only=True, required=True)
 
 
@@ -71,6 +71,7 @@ class HistoryRecordSerializer(serializers.Serializer):
     date = serializers.DateTimeField(source="history_date")
     user = HistoryUserSerializer(source="history_user")
     diff = serializers.SerializerMethodField()
+    language = serializers.CharField()
 
     def get_diff(self, obj):
         prev_record = obj.prev_record
