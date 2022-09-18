@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db.models import Count, Q
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -8,12 +10,18 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from ..models import Directory, Translation, TranslationGroup
+from translations_tool.translations.models import (
+    Directory,
+    Translation,
+    TranslationGroup,
+)
+from translations_tool.users.models import User
+
 from .serializers import (
     DirectorySerializer,
-    HistoryPaginationSerializer,
     HistoryRecordSerializer,
     TranslationGroupSerializer,
+    TranslationHistoryFilterSerializer,
     TranslationPaginationSerializer,
     TranslationSaveSerializer,
     TranslationSerializer,
@@ -82,7 +90,7 @@ class TranslationsHistoryViewSet(ListModelMixin, GenericViewSet):
     def list(self, request, *args, **kwargs):
         qs = self.get_queryset()
 
-        serializer = HistoryPaginationSerializer(data=request.GET, context={"request": request})
+        serializer = TranslationHistoryFilterSerializer(data=request.GET, context={"request": request})
         serializer.is_valid(raise_exception=True)
         filters = serializer.validated_data
 
@@ -91,6 +99,32 @@ class TranslationsHistoryViewSet(ListModelMixin, GenericViewSet):
 
         if "user_id" in filters:
             qs = qs.filter(history_user_id=filters["user_id"])
+
+        if filters["startDate"]:
+            start_date = datetime.fromtimestamp(filters["startDate"] / 1000.0)
+            qs = qs.filter(history_date__gte=start_date)
+
+        if filters["endDate"]:
+            end_date = datetime.fromtimestamp(filters["endDate"] / 1000.0)
+            qs = qs.filter(history_date__lte=end_date)
+
+        if filters["language"]:
+            qs = qs.filter(language=filters["language"])
+
+        if filters["username"]:
+            if User.objects.filter(username__iexact=filters["username"]).exists():
+                qs = qs.filter(history_user__username__iexact=filters["username"])
+            else:
+                qs = qs.filter(history_user__username__icontains=filters["username"])
+
+        if filters["key"]:
+            if Translation.objects.filter(key__iexact=filters["key"]).exists():
+                qs = qs.filter(key__iexact=filters["key"])
+            else:
+                qs = qs.filter(key__icontains=filters["key"])
+
+        if filters["order_by"]:
+            qs = qs.order_by(f"{'-' if filters['order_direction'] == 'desc' else ''}{filters['order_by']}")
 
         qs = self.paginate_queryset(qs)
         paginator = self.paginator.page.paginator

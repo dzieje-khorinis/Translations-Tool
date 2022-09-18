@@ -55,9 +55,19 @@ class TranslationSaveSerializer(serializers.Serializer):
     language = serializers.CharField(max_length=2, write_only=True, required=True)
 
 
-class HistoryPaginationSerializer(serializers.Serializer):
+class TranslationHistoryFilterSerializer(serializers.Serializer):
     translation_id = serializers.IntegerField(required=False)
     user_id = serializers.IntegerField(required=False)
+
+    order_direction = serializers.CharField(max_length=128, write_only=True, default="asc")
+    order_by = serializers.CharField(max_length=128, write_only=True, default="")
+    # per_page = serializers.IntegerField(write_only=True, default=10)
+    # page = serializers.IntegerField(write_only=True, default=1)
+    startDate = serializers.IntegerField(write_only=True, default=0)
+    endDate = serializers.IntegerField(write_only=True, default=0)
+    language = serializers.CharField(write_only=True, max_length=2, default="")
+    username = serializers.CharField(write_only=True, max_length=128, default="")
+    key = serializers.CharField(write_only=True, max_length=2000, default="")
 
 
 class HistoryUserSerializer(serializers.Serializer):
@@ -72,6 +82,12 @@ class HistoryRecordSerializer(serializers.Serializer):
     user = HistoryUserSerializer(source="history_user")
     diff = serializers.SerializerMethodField()
     language = serializers.CharField()
+
+    key = serializers.CharField()
+    file = serializers.CharField()
+    line = serializers.IntegerField()
+
+    type = serializers.CharField(source="history_type")
 
     def get_diff(self, obj):
         prev_record = obj.prev_record
