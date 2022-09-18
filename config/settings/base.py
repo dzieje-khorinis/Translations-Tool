@@ -32,6 +32,8 @@ LANGUAGES = [
     ("pl", _("Polish")),
     ("de", _("German")),
     ("ru", _("Russian")),
+    ("cs", _("Czech")),
+    ("it", _("Italian")),
 ]
 LANGUAGES_DICT = dict(LANGUAGES)
 
