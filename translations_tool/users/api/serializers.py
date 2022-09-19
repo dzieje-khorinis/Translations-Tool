@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model, password_validation
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
+from rest_framework.pagination import PageNumberPagination
 
 User = get_user_model()
 
@@ -18,6 +19,12 @@ class UserSerializer(serializers.ModelSerializer):
         if obj.is_superuser:
             return User.ADMIN
         return obj.role
+
+
+class UserPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = "per_page"
+    max_page_size = 50
 
 
 class ChangePasswordSerializer(serializers.Serializer):

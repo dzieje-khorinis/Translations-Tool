@@ -12,6 +12,7 @@ from .serializers import (
     ActivateUserSerializer,
     ChangePasswordSerializer,
     CreateUserSerializer,
+    UserPagination,
     UserSerializer,
 )
 
@@ -29,8 +30,23 @@ class ObtainAuthTokenView(ObtainAuthToken):
 
 class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
     serializer_class = UserSerializer
+    pagination_class = UserPagination
     queryset = User.objects.all()
     lookup_field = "username"
+
+    def list(self, request, *args, **kwargs):
+        qs = self.get_queryset()
+        qs = self.paginate_queryset(qs)
+        paginator = self.paginator.page.paginator
+        serializer = self.get_serializer(qs, many=True)
+        data = {
+            "page": self.paginator.page.number,
+            "per_page": paginator.per_page,
+            "total": paginator.count,
+            "total_pages": paginator.num_pages,
+            "data": serializer.data,
+        }
+        return Response(status=status.HTTP_200_OK, data=data)
 
     def get_queryset(self, *args, **kwargs):
         return self.request.user.editable_users()
