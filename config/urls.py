@@ -7,6 +7,7 @@ from django.views import defaults as default_views
 from django.views.generic import TemplateView
 from rest_framework.routers import DefaultRouter, SimpleRouter
 
+from translations_tool.pubsub.views import IssueWebSocketTicket, UserAuthCheckView
 from translations_tool.translations.api.views import (
     DirectoryViewSet,
     TranslationGroupViewSet,
@@ -51,6 +52,8 @@ urlpatterns += [
     path("api/", include(router.urls)),
     path("api/auth-token/", ObtainAuthTokenView.as_view()),
     path("api/change_password/", ChangePasswordView.as_view()),
+    path("api/auth-check/", UserAuthCheckView.as_view()),  # used internally by nchan to validate websocket connection
+    path("api/issue-web-socket-ticket/", IssueWebSocketTicket.as_view()),
 ]
 
 if settings.DEBUG:

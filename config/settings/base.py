@@ -89,6 +89,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "translations_tool.users.apps.UsersConfig",
     "translations_tool.translations.apps.TranslationsConfig",
+    "translations_tool.pubsub.apps.PubSubConfig",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -325,3 +326,7 @@ SIMPLE_HISTORY_REVERT_DISABLED = True
 
 # https://django-ratelimit.readthedocs.io/en/stable/settings.html?highlight=RATELIMIT_VIEW#ratelimit-view
 RATELIMIT_VIEW = "translations_tool.translations.views.ratelimited_error"
+
+NCHAN_PUB_ADDRESS = "http://localhost:8082"
+if env("USE_DOCKER") == "yes":
+    NCHAN_PUB_ADDRESS = "http://nchan:8082"
