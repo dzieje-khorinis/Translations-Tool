@@ -22,9 +22,16 @@ class Command(BaseCommand):
             type=argparse.FileType("r"),
             help="Path to the data file",
         )
+        parser.add_argument(
+            "--lang",
+            "-l",
+            type=str,
+            required=True,
+        )
 
     def handle(self, *args, **options):
         file = options["path"]
+        lang = options["lang"]
         data = json.loads(file.read())
         print(len(data))
         Translation.objects.all().delete()
@@ -35,7 +42,7 @@ class Command(BaseCommand):
         for i, row in enumerate(data, start=1):
             key = (row["key"] or "").strip()
             key_from_value = False
-            value = row["value_pl"].strip()
+            value = row[f"value_{lang}"].strip()
 
             value_as_key = value.upper()
             nonempty_value = PATTERN.search(value_as_key)
@@ -66,7 +73,7 @@ class Command(BaseCommand):
 
             creation_kwargs = {
                 "key": key,
-                "value_pl": value,
+                f"value_{lang}": value,
                 "parent": prev_group,
                 "file": filepath,
                 "line": row["metadata"]["line"],
@@ -74,7 +81,7 @@ class Command(BaseCommand):
 
             try:
                 translation = Translation.objects.get(key=key)
-                if not (key_from_value or translation.value_pl == value):
+                if not (key_from_value or getattr(translation, f"value_{lang}") == value):
                     print("ALERT!!!", key, row)
                     raise
                 continue
